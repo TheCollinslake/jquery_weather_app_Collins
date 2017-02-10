@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Jquery Weather App</title>
+</head>
+<body>
+    <div class="wrapper">
+        <!--A wrapper for CSS-design-->
+        <h2>Weather Application in JavaScript</h2>
+        <p>What temperature is it at your <span class="italic">exact</span> location? Click the button and find out!</p>
+
+        <p id="result">? &deg;</p>
+        <p id="desc"></p>
+        <p class="icon"></p>
+
+        <div id="map"></div>
+
+        <div class="state" zipcode="11111">Utah</div>
+        <div class="state" zipcode="22222">Minnesota</div>
+        <div class="state" zipcode="33333">California</div>
+        <div class="state" zipcode="44444">New Mexico</div>
+        <div class="state" zipcode="55555">Colorado</div>
+
+        <button id="showTemp">Submit</button>
+
+    </div>
+
+<script src="https://code.jquery.com/jquery-1.11.3.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        var lat, lon, api_url;
+        if("geolocation" in navigator){
+
+            $('#showTemp').on('click', function() {
+                navigator.geolocation.getCurrentPosition(getLocation);
+
+                function getLocation(position){
+                    lat = position.coords.latitude;
+                    lon = position.coords.longitude;
+
+                    console.log(position);
+
+                    api_url = 'http://api.openweathermap.org/data/2.5/weather?'
+                        + 'lat=' + lat
+                        + '&lon=' + lon
+                        + '&units=imperial'
+                        + '&appid=0ef44268d6df1a85a6bb198bd89380c2'
+                    ;
+                    console.log(api_url);
+
+                    $.ajax({
+                        url : api_url,
+                        method : 'GET',
+                        success : function(data) {
+                            var tempr = data.main.temp;
+                            $('#result').text(tempr + '°');
+                            $('#desc').text(data.weather[0].description);
+
+                            var icon = data.weather[0].icon;
+                            $('p.icon').html("<img src='http://openweathermap.org/img/w/" + icon + ".png'/>");
+                        }
+                    });
+
+
+
+
+                }
+            });
+        } else {
+            alert('Your browser doesn\'t support geolocation.');
+        }
+    });
+</script>
+
+</body>
+</html>
