@@ -3,16 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Jquery Weather App</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
     <div class="wrapper">
         <!--A wrapper for CSS-design-->
         <h2>Weather Application in JavaScript</h2>
         <p>What temperature is it at your <span class="italic">exact</span> location? Click the button and find out!</p>
-
-        <p id="result">? &deg;</p>
-        <p id="desc"></p>
-        <p class="icon"></p>
+        <div id="infowraper"></div>
+            <p id="result">? &deg;</p>
+            <p id="desc"></p>
+            <p class="icon"></p>
+            <p id="spd"></p>
+        </div>
 
         <div id="map"></div>
 
@@ -28,15 +31,17 @@
 
 <script src="https://code.jquery.com/jquery-1.11.3.js"></script>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDr16X5KasbBJ1Dx9oSHugxeTCnkTikHDs" async defer></script>
+
 <script type="text/javascript">
     $(document).ready(function(){
-        var lat, lon, api_url;
+        var lat, lon, spd, api_url,map;
         if("geolocation" in navigator){
 
             $('#showTemp').on('click', function() {
                 navigator.geolocation.getCurrentPosition(getLocation);
 
-                function getLocation(position){
+                function getLocation(position) {
                     lat = position.coords.latitude;
                     lon = position.coords.longitude;
 
@@ -50,23 +55,44 @@
                     ;
                     console.log(api_url);
 
+
+
+
                     $.ajax({
-                        url : api_url,
-                        method : 'GET',
-                        success : function(data) {
+                        url: api_url,
+                        method: 'GET',
+                        success: function (data) {
                             var tempr = data.main.temp;
                             $('#result').text(tempr + '°');
                             $('#desc').text(data.weather[0].description);
+
+                            var spd = data.wind.speed;
+                            $('#spd').text(spd + 'm/p');
 
                             var icon = data.weather[0].icon;
                             $('p.icon').html("<img src='http://openweathermap.org/img/w/" + icon + ".png'/>");
                         }
                     });
 
+                }
 
+                navigator.geolocation.getCurrentPosition(getMap);
 
+                function getMap(position){
+                    map = new google.maps.Map(document.getElementById('map'),{
+                        center: {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        },
+                        zoom: 17
+                    });
 
                 }
+                $("div#map").show();
+
+
+
+
             });
         } else {
             alert('Your browser doesn\'t support geolocation.');
